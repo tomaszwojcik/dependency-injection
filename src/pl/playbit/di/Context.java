@@ -8,18 +8,23 @@ import java.util.Collection;
 
 public class Context {
 
+    @SuppressWarnings("unchecked")
     public static <T> T create(Class<T> clazz) throws IllegalAccessException, InstantiationException, NoSuchFieldException {
         T instance = clazz.newInstance();
         Collection<Field> injectedList = getInjectFields(clazz);
         for (Field fieldToBeInjected : injectedList) {
-            //Get type of class to be injected (field type with @Inject)
-
+            //Get type of class to be injected (field (with @Inject) type)
             Class classToBeInjected = fieldToBeInjected.getType();
-
-            Object injectedField = create(classToBeInjected);
-
-            Field instanceField = instance.getClass().getField(fieldToBeInjected.getName());
-            fieldToBeInjected.set(instanceField, injectedField);
+            //Create underlying object
+            Object injectedObject = create(classToBeInjected);
+            boolean isAccessible = fieldToBeInjected.isAccessible();
+            if (!isAccessible) {
+                fieldToBeInjected.setAccessible(true);
+            }
+            fieldToBeInjected.set(instance, injectedObject);
+            if (!isAccessible) {
+                fieldToBeInjected.setAccessible(false);
+            }
         }
         return instance;
     }

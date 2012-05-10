@@ -7,7 +7,6 @@ public class Engine {
     @Inject
     private Carburetor carburetor;
 
-    @Inject
     private Exhaust exhaust;
 
 }
