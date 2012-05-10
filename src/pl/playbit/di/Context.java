@@ -17,12 +17,14 @@ public class Context {
             Class classToBeInjected = fieldToBeInjected.getType();
             //Create underlying object
             Object injectedObject = create(classToBeInjected);
+            //Check is field is accessible and raise privileges if not.
             boolean isAccessible = fieldToBeInjected.isAccessible();
-            if (!isAccessible) {
+            if (!isAccessible) { //Raise privileges
                 fieldToBeInjected.setAccessible(true);
             }
+            //Set field for the given instance with given value.
             fieldToBeInjected.set(instance, injectedObject);
-            if (!isAccessible) {
+            if (!isAccessible) { //Restore privileges
                 fieldToBeInjected.setAccessible(false);
             }
         }
