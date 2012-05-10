@@ -40,4 +40,9 @@ public class DITest {
         assertEquals(exhaustVendor, car.getEngine().getExhaust().getName());
     }
 
+    @Test
+    public void testInjection() {
+        Context.injectFields(BetterCar.class);
+    }
+
 }

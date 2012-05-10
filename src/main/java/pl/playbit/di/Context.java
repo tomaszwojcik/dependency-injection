@@ -8,11 +8,13 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedList;
 
 public class Context {
 
     //TODO inject everything in the inheritance (currently super classes @Inject and @Init are omitted).
 
+    //TODO improve this method to inject superclasses' fields and invoke superclasses' inits.
     @SuppressWarnings("unchecked")
     public static <T> T create(Class<T> clazz) throws IllegalAccessException, InstantiationException, NoSuchFieldException, InvocationTargetException {
         T instance = clazz.newInstance();
@@ -42,6 +44,22 @@ public class Context {
         }
         initMethods(instance);
         return instance;
+    }
+
+    //TODO write this method.
+    public static <T> void injectFields(T instance) {
+        getClassHierarchy(instance);
+    }
+
+    //TODO write this method.
+    private static <T> Collection<Class<?>> getClassHierarchy(T instance) {
+        Collection<Class<?>> hierarchy = new LinkedList<>();
+        Class<?> clazz = (Class<?>) instance;
+        while (clazz != null) {
+            hierarchy.add(clazz);
+            clazz = clazz.getSuperclass();
+        }
+        return hierarchy;
     }
 
     private static <T> void initMethods(T instance) throws InvocationTargetException, IllegalAccessException {
