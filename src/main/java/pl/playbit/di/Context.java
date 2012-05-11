@@ -12,9 +12,6 @@ import java.util.LinkedList;
 
 public class Context {
 
-    //TODO inject everything in the inheritance (currently super classes @Inject and @Init are omitted).
-
-    //TODO improve this method to inject superclasses' fields and invoke superclasses' inits.
     @SuppressWarnings("unchecked")
     public static <T> T create(Class<T> clazz) throws IllegalAccessException, InstantiationException, NoSuchFieldException, InvocationTargetException {
         T instance = clazz.newInstance();
