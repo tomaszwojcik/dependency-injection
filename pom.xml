@@ -8,11 +8,12 @@
     <artifactId>dependency-injection</artifactId>
     <version>1.0</version>
 
+
     <dependencies>
         <dependency>
             <groupId>org.testng</groupId>
             <artifactId>testng</artifactId>
-            <version>6.5.2</version>
+            <version>6.5.1</version>
         </dependency>
     </dependencies>
 
