@@ -18,6 +18,21 @@ public class Context {
     @SuppressWarnings("unchecked")
     public static <T> T create(Class<T> clazz) throws IllegalAccessException, InstantiationException, NoSuchFieldException, InvocationTargetException {
         T instance = clazz.newInstance();
+        injectFields(instance);
+        initMethods(instance);
+        return instance;
+    }
+
+    private static <T> void injectFields(T instance) throws InvocationTargetException, NoSuchFieldException, IllegalAccessException, InstantiationException {
+        LinkedList<Class<?>> hierarchy = getClassHierarchy(instance);
+        while (hierarchy.size() > 0) {
+            Class<?> clazz = hierarchy.pollLast();
+            injectClassFields(instance, clazz);
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <T> void injectClassFields(T instance, Class<?> clazz) throws InvocationTargetException, NoSuchFieldException, InstantiationException, IllegalAccessException {
         Collection<Field> injectedList = getInjectFields(clazz);
         for (Field fieldToBeInjected : injectedList) {
             Class classToBeInjected;// = null;
@@ -42,20 +57,12 @@ public class Context {
                 fieldToBeInjected.setAccessible(false);
             }
         }
-        initMethods(instance);
-        return instance;
     }
 
-    //TODO write this method.
-    public static <T> void injectFields(T instance) {
-        getClassHierarchy(instance);
-    }
-
-    //TODO write this method.
-    private static <T> Collection<Class<?>> getClassHierarchy(T instance) {
-        Collection<Class<?>> hierarchy = new LinkedList<>();
-        Class<?> clazz = (Class<?>) instance;
-        while (clazz != null) {
+    private static <T> LinkedList<Class<?>> getClassHierarchy(T instance) {
+        LinkedList<Class<?>> hierarchy = new LinkedList<>();
+        Class<?> clazz = instance.getClass();
+        while (clazz != null && clazz != Object.class) {
             hierarchy.add(clazz);
             clazz = clazz.getSuperclass();
         }
