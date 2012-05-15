@@ -5,10 +5,13 @@ import org.testng.annotations.Test;
 import pl.playbit.di.annotations.Init;
 import pl.playbit.di.annotations.Inject;
 import pl.playbit.di.car.Car;
-import pl.playbit.di.car.Carburetor;
-import pl.playbit.di.car.Engine;
-import pl.playbit.di.car.Exhaust;
 import pl.playbit.di.car.better.BetterCar;
+import pl.playbit.di.context.Context;
+import pl.playbit.di.context.DefaultContext;
+import pl.playbit.di.inspector.ClassInspector;
+import pl.playbit.di.inspector.DefaultClassInspector;
+import pl.playbit.di.sample.SampleA;
+import pl.playbit.di.sample.SampleB;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
@@ -18,7 +21,11 @@ import java.util.LinkedList;
 
 import static org.testng.Assert.*;
 
+//TODO check given values
 public class DITest {
+
+    private ClassInspector classInspector = new DefaultClassInspector();
+    private Context context = new DefaultContext(classInspector); //Parameter can be omitted
 
     @DataProvider
     public Object[][] shouldInjectDependencies() {
@@ -34,7 +41,7 @@ public class DITest {
                                                          String carburetorVendor, String exhaustVendor) {
         T car = null;
         try {
-            car = Context.create(clazz);
+            car = context.create(clazz);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -59,7 +66,7 @@ public class DITest {
 
     @Test(dataProvider = "shouldGetClassHierarchy")
     public <T> void shouldGetClassHierarchy(Class<T> targetClass, Object[] superiorClasses) {
-        LinkedList<Class<?>> hierarchy = ClassInspector.getClassHierarchy(targetClass);
+        LinkedList<Class<?>> hierarchy = classInspector.getClassHierarchy(targetClass);
         assertEquals(hierarchy.size(), superiorClasses.length);
         int idx = 0;
         for (Class<?> clazz : hierarchy) {
@@ -68,30 +75,6 @@ public class DITest {
         }
     }
 
-    private class SampleA {
-        @Inject
-        private Car car;
-
-        private BetterCar betterCar;
-
-    }
-
-    private class SampleB {
-        @Inject
-        private Engine spareEngine;
-
-        @Inject
-        private Exhaust spareExhaust;
-
-        private Carburetor spareCarburetor;
-
-        @Init
-        public void doSomething() {
-        }
-
-        public void doSomethingElse() {
-        }
-    }
 
     @DataProvider
     public Object[][] itShouldGetAnnotatedFields() {
@@ -103,7 +86,7 @@ public class DITest {
 
     @Test(dataProvider = "itShouldGetAnnotatedFields")
     public <T> void itShouldGetAnnotatedFields(Class<T> clazz, Class<? extends Annotation> annotation, int annotatedCount) {
-        Collection<Field> fields = ClassInspector.getAnnotatedFields(clazz, annotation);
+        Collection<Field> fields = classInspector.getAnnotatedFields(clazz, annotation);
         assertEquals(fields.size(), annotatedCount);
     }
 
@@ -117,7 +100,7 @@ public class DITest {
 
     @Test(dataProvider = "itShouldGetAnnotatedMethods")
     public <T> void itShouldGetAnnotatedMethods(Class<T> clazz, Class<? extends Annotation> annotation, int annotatedCount) {
-        Collection<Method> methods = ClassInspector.getAnnotatedMethods(clazz, annotation);
+        Collection<Method> methods = classInspector.getAnnotatedMethods(clazz, annotation);
         assertEquals(methods.size(), annotatedCount);
     }
 }

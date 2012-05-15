@@ -1,7 +1,9 @@
-package pl.playbit.di;
+package pl.playbit.di.context;
 
 import pl.playbit.di.annotations.Init;
 import pl.playbit.di.annotations.Inject;
+import pl.playbit.di.inspector.ClassInspector;
+import pl.playbit.di.inspector.DefaultClassInspector;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -9,10 +11,21 @@ import java.lang.reflect.Method;
 import java.util.Collection;
 import java.util.LinkedList;
 
-public class Context {
+public class DefaultContext implements Context {
 
+    private ClassInspector classInspector;
+
+    public DefaultContext() {
+        classInspector = new DefaultClassInspector();
+    }
+
+    public DefaultContext(ClassInspector classInspector) {
+        this.classInspector = classInspector;
+    }
+
+    @Override
     @SuppressWarnings("unchecked")
-    public static <T> T create(Class<T> clazz) {
+    public <T> T create(Class<T> clazz) {
         try {
             T instance = clazz.newInstance();
             injectFields(instance);
@@ -24,8 +37,8 @@ public class Context {
         return null;
     }
 
-    private static <T> void injectFields(T instance) throws InvocationTargetException, NoSuchFieldException, IllegalAccessException, InstantiationException {
-        LinkedList<Class<?>> hierarchy = ClassInspector.getClassHierarchy(instance.getClass());
+    private <T> void injectFields(T instance) throws InvocationTargetException, NoSuchFieldException, IllegalAccessException, InstantiationException {
+        LinkedList<Class<?>> hierarchy = classInspector.getClassHierarchy(instance.getClass());
         while (hierarchy.size() > 0) {
             Class<?> clazz = hierarchy.pollLast();
             injectClassFields(instance, clazz);
@@ -33,8 +46,8 @@ public class Context {
     }
 
     @SuppressWarnings("unchecked")
-    private static <T> void injectClassFields(T instance, Class<?> clazz) throws InvocationTargetException, NoSuchFieldException, InstantiationException, IllegalAccessException {
-        Collection<Field> injectedList = ClassInspector.getAnnotatedFields(clazz, Inject.class);
+    private <T> void injectClassFields(T instance, Class<?> clazz) throws InvocationTargetException, NoSuchFieldException, InstantiationException, IllegalAccessException {
+        Collection<Field> injectedList = classInspector.getAnnotatedFields(clazz, Inject.class);
         for (Field fieldToBeInjected : injectedList) {
             Class classToBeInjected;// = null;
             Inject annotation = fieldToBeInjected.getAnnotation(Inject.class);
@@ -60,8 +73,8 @@ public class Context {
         }
     }
 
-    private static <T> void initMethods(T instance) throws InvocationTargetException, IllegalAccessException {
-        Collection<Method> methods = ClassInspector.getAnnotatedMethods(instance.getClass(), Init.class);
+    private <T> void initMethods(T instance) throws InvocationTargetException, IllegalAccessException {
+        Collection<Method> methods = classInspector.getAnnotatedMethods(instance.getClass(), Init.class);
         for (Method method : methods) {
             boolean isAccessible = method.isAccessible();
             if (!isAccessible) {
