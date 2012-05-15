@@ -12,5 +12,9 @@ public interface ClassInspector {
 
     <T> Collection<Field> getAnnotatedFields(Class<T> clazz, Class<? extends Annotation> annotation);
 
+    <T> Collection<Field> getAnnotatedFields(Class<T> clazz, Class<? extends Annotation>... annotations);
+
     <T> Collection<Method> getAnnotatedMethods(Class<T> clazz, Class<? extends Annotation> annotation);
+
+    <T> Collection<Method> getAnnotatedMethods(Class<T> clazz, Class<? extends Annotation>... annotations);
 }

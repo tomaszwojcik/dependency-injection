@@ -10,6 +10,8 @@ import pl.playbit.di.context.Context;
 import pl.playbit.di.context.DefaultContext;
 import pl.playbit.di.inspector.ClassInspector;
 import pl.playbit.di.inspector.DefaultClassInspector;
+import pl.playbit.di.multiple.annotations.Inject2;
+import pl.playbit.di.multiple.annotations.MultipleAnnotations;
 import pl.playbit.di.sample.SampleA;
 import pl.playbit.di.sample.SampleB;
 
@@ -102,5 +104,20 @@ public class DITest {
     public <T> void itShouldGetAnnotatedMethods(Class<T> clazz, Class<? extends Annotation> annotation, int annotatedCount) {
         Collection<Method> methods = classInspector.getAnnotatedMethods(clazz, annotation);
         assertEquals(methods.size(), annotatedCount);
+    }
+
+    @DataProvider
+    public Object[][] itShouldGetFieldsWithMultipleAnnotations() {
+        return new Object[][] {
+                {MultipleAnnotations.class, new Class[]{Inject.class, Inject2.class}, 2},
+                {MultipleAnnotations.class, new Class[]{Inject2.class}, 2},
+                {MultipleAnnotations.class, new Class[]{Inject.class}, 1}
+        };
+    }
+
+    @Test(dataProvider = "itShouldGetFieldsWithMultipleAnnotations")
+    public <T> void itShouldGetFieldsWithMultipleAnnotations(Class<T> clazz, Class<? extends Annotation>[] annotations, int count) {
+        Collection<Field> fields = classInspector.getAnnotatedFields(clazz, annotations);
+        assertEquals(fields.size(), count);
     }
 }
